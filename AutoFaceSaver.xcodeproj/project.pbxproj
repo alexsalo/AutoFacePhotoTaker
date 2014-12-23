@@ -13,6 +13,7 @@
 		391C626D1A451F4F0019865C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 391C626C1A451F4F0019865C /* Images.xcassets */; };
 		391C62701A451F4F0019865C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 391C626E1A451F4F0019865C /* LaunchScreen.xib */; };
 		391C627C1A451F4F0019865C /* AutoFaceSaverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391C627B1A451F4F0019865C /* AutoFaceSaverTests.swift */; };
+		391C62871A47A3780019865C /* UIImage_Orientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391C62861A47A3780019865C /* UIImage_Orientation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		391C62751A451F4F0019865C /* AutoFaceSaverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AutoFaceSaverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		391C627A1A451F4F0019865C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		391C627B1A451F4F0019865C /* AutoFaceSaverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoFaceSaverTests.swift; sourceTree = "<group>"; };
+		391C62861A47A3780019865C /* UIImage_Orientation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImage_Orientation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +79,7 @@
 		391C62621A451F4F0019865C /* AutoFaceSaver */ = {
 			isa = PBXGroup;
 			children = (
+				391C62851A47A3570019865C /* Extensions */,
 				391C62651A451F4F0019865C /* AppDelegate.swift */,
 				391C62671A451F4F0019865C /* ViewController.swift */,
 				391C62691A451F4F0019865C /* Main.storyboard */,
@@ -110,6 +113,14 @@
 				391C627A1A451F4F0019865C /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		391C62851A47A3570019865C /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				391C62861A47A3780019865C /* UIImage_Orientation.swift */,
+			);
+			name = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -213,6 +224,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				391C62871A47A3780019865C /* UIImage_Orientation.swift in Sources */,
 				391C62681A451F4F0019865C /* ViewController.swift in Sources */,
 				391C62661A451F4F0019865C /* AppDelegate.swift in Sources */,
 			);
@@ -408,6 +420,7 @@
 				391C62811A451F4F0019865C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		391C62821A451F4F0019865C /* Build configuration list for PBXNativeTarget "AutoFaceSaverTests" */ = {
 			isa = XCConfigurationList;
@@ -416,6 +429,7 @@
 				391C62841A451F4F0019865C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
