@@ -15,6 +15,8 @@ import CoreGraphics
 import Foundation
 import CoreLocation
 
+let albumName = "lostFaces"
+
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     let captureSession = AVCaptureSession()
     var captureDevice: AVCaptureDevice?
@@ -24,7 +26,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     var detector: CIDetector?
     var library: ALAssetsLibrary?
     var softwareContext: CIContext?
-    let albumName = "lostFaces"
+    
+    //album
+    var albumFound: Bool = false
+    var assetCollection: PHAssetCollection!
+    var photosAsset: PHFetchResult!
+    let fetchOptions = PHFetchOptions()
 
     @IBOutlet var viewLive: UIView!
     
@@ -35,6 +42,10 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.findOrCreateAppAlbum()
+        
+        //find capture device
         captureSession.sessionPreset = AVCaptureSessionPresetMedium
         let devices = AVCaptureDevice.devices()
         println(devices)
@@ -116,10 +127,60 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             (imageSampleBuffer : CMSampleBuffer!, _) in
             println("image captured")
             let imageDataJpeg = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(imageSampleBuffer)
-            let ciImage = CIImage(data: imageDataJpeg)
-            let cgImage = self.softwareContext!.createCGImage(ciImage, fromRect: ciImage.extent())
-            self.library!.writeImageToSavedPhotosAlbum(cgImage, metadata: ciImage.properties(), completionBlock: nil)
+            
+            //save to "saved photos" or app specific album
+            self.saveImageToAppAlbum(imageDataJpeg)
+            //self.saveImageToSavedPhotosAlbum(imageDataJpeg)
+            
             println("image saved")
+        }
+    }
+    
+    func saveImageToSavedPhotosAlbum(imageData: NSData){
+        let ciImage = CIImage(data: imageData)
+        let cgImage = self.softwareContext!.createCGImage(ciImage, fromRect: ciImage.extent())
+        self.library!.writeImageToSavedPhotosAlbum(cgImage, metadata: ciImage.properties(), completionBlock: nil)
+    }
+    
+    func saveImageToAppAlbum(imageData: NSData){
+        //they still appear in camera roll and recently saved - that's design, babe
+        let uiImage = UIImage(data: imageData)
+        PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+            let createAssetRequest = PHAssetChangeRequest.creationRequestForAssetFromImage(uiImage)
+            let assetPlaceholder = createAssetRequest.placeholderForCreatedAsset
+            let albumChangeRequest = PHAssetCollectionChangeRequest(forAssetCollection: self.assetCollection, assets: self.photosAsset)
+            albumChangeRequest.addAssets([assetPlaceholder])
+            }, completionHandler: {(success, error)in NSLog("Adding Image to Library -> %@", (success ? "Sucess":"Error!"))
+        })
+    }
+    
+    func findOrCreateAppAlbum(){
+        //Check if the folder exists, if not, create it
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
+        let collection:PHFetchResult = PHAssetCollection.fetchAssetCollectionsWithType(.Album, subtype: .Any, options: fetchOptions)
+        
+        //if we fetched something - we have album
+        if let first_Obj:AnyObject = collection.firstObject{
+            self.albumFound = true
+            self.assetCollection = first_Obj as PHAssetCollection
+        }else{
+            //Album placeholder for the asset collection, used to reference collection in completion handler
+            var albumPlaceholder:PHObjectPlaceholder!
+            //create the folder
+            NSLog("\nFolder \"%@\" does not exist\nCreating now...", albumName)
+            PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+                let request = PHAssetCollectionChangeRequest.creationRequestForAssetCollectionWithTitle(albumName)
+                albumPlaceholder = request.placeholderForCreatedAssetCollection
+                },
+                completionHandler: {(success:Bool, error:NSError!)in
+                    NSLog("Creation of folder -> %@", (success ? "Success":"Error!"))
+                    self.albumFound = (success ? true:false)
+                    if(success){
+                        let collection = PHAssetCollection.fetchAssetCollectionsWithLocalIdentifiers([albumPlaceholder.localIdentifier], options: nil)
+                        self.assetCollection = collection?.firstObject as PHAssetCollection
+                    }
+            })
         }
     }
 
@@ -138,10 +199,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         if features.count > 0 {
             println("faces detected \(NSDate())")
             let feature = features[0]
-            //println(feature.bounds)
-            //println(ciImage.extent())
             
-            //Here could be used saving from the buffer that is already at hands, but fir some reason it's hard to do - errors
+            //Here could be used saving from the buffer that is already at hands, but for some reason it's hard to do - errors
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), {self.takePhoto()})
         }
     }
